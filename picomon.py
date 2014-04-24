@@ -1,7 +1,10 @@
 from subprocess import Popen, PIPE
 import concurrent.futures
 from time import sleep
-from IPy import IP
+
+
+def ip_version(addr):
+    return 6 if ':' in addr else 4
 
 
 class Check(object):
@@ -52,7 +55,7 @@ class Check(object):
         return ret == 0
 
     def exec_by_ip_family(self, addr, v4command, v6command):
-        ipv = IP(addr).version()
+        ipv = ip_version(addr)
         if ipv == 4:
             return self.exec_with_timeout(v4command)
         if ipv == 6:

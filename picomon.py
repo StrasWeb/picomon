@@ -165,20 +165,21 @@ class Host(object):
         return '<Host ipv4="%s" ipv6="%s">' % (self.ipv4, self.ipv6)
 
 
-def genChecks(check, dests):
-    return [check(d) for d in dests]
+class Checks(list):
+    def add(self, check, dests):
+        self += [check(d) for d in dests]
 
 
 mail   = Host(ipv4='127.0.0.1', ipv6='::1')
 web    = Host(ipv4='127.0.0.0', ipv6='::42')
 alsace = Host(ipv4='127.0.0.1', ipv6='::1')
 
-checks = \
-  genChecks(CheckDNSZone, ["arn-fai.net", "netlib.re"]) + \
-  genChecks(CheckPing4, [mail, web]) + \
-  genChecks(CheckPing6, [mail, web])
-  # genChecks(CheckSMTP4, [mail, alsace])
-  # genChecks(CheckSMTP6, [mail, alsace])
+checks = Checks()
+checks.add(CheckDNSZone, ["arn-fai.net", "netlib.re"])
+checks.add(CheckPing4, [mail, web])
+checks.add(CheckPing6, [mail, web])
+# checks.add(CheckSMTP4, [mail, alsace])
+# checks.add(CheckSMTP6, [mail, alsace])
 
 
 if __name__ == '__main__':

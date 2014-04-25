@@ -15,7 +15,7 @@ else:
 
     class TimeoutExpired(subprocess.CalledProcessError):
         def __init__(self, args, timeout=None, output=None):
-            self.cmd, self.timeout, self.output = args, timeout, output
+            self.args, self.timeout, self.output = args, timeout, output
 
         def __str__(self):
             return 'Command %s timed out after %g seconds' % (self.args,

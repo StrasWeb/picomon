@@ -22,8 +22,9 @@ else:
                                                               self.timeout)
 
     class Popen(subprocess.Popen):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
+        def __init__(self, args, *pargs, **kwargs):
+            self.args = args
+            super().__init__(args=args, *pargs, **kwargs)
             self._out = None
             self._err = None
             self._exc = None

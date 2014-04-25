@@ -60,10 +60,6 @@ else:
                     return self._out, self._err
 
 
-def ip_version(addr):
-    return 6 if ':' in addr else 4
-
-
 class Check(object):
     def __init__(self, **options):
         self._options = options
@@ -73,27 +69,19 @@ class Check(object):
     def __repr__(self):
         return '<%s options=%s>' % (self.__class__.__name__, self._options)
 
-    def setup(self, host, addr):
-        print("Starting to check for %s on %s (using ip %s)." %
-              (str(self), str(host), str(addr)))
+    def setup(self):
         pass
 
-    def teardown(self, host, addr):
-        if not self.ok:
-            print("Check %s on %s (using ip %s) failed!" %
-                  (str(self), str(host), str(addr)))
-            print("Further information:\n" + self.errmsg)
-        else:
-            print("Check %s on %s (using ip %s) successful!" %
-                  (str(self), str(host), str(addr)))
+    def teardown(self):
+        pass
 
     def check(self, host, addr):
         pass
 
-    def run(self, host, addr):
-        self.setup(host, addr)
-        self.ok = self.check(host, addr)
-        self.teardown(host, addr)
+    def run(self):
+        self.setup()
+        self.ok = self.check()
+        self.teardown()
         return self.ok
 
     def exec_with_timeout(self, command, timeout=2):
@@ -110,21 +98,49 @@ class Check(object):
                            "stderr: " + str(err) + '\n'
         return p.returncode == 0
 
-    def exec_by_ip_family(self, addr, v4command, v6command):
-        ipv = ip_version(addr)
-        if ipv == 4:
-            return self.exec_with_timeout(v4command)
-        if ipv == 6:
-            return self.exec_with_timeout(v6command)
-        self.errmsg = "Unknown IP version %s" % ipv
+
+class CheckIP(Check):
+    def __repr__(self):
+        return '<%s on %s, options=%s>' % (self.__class__.__name__, self.addr, self._options)
+
+
+class Check4(CheckIP):
+    def __init__(self, host, **options):
+        super().__init__(**options)
+        self.addr = host.ipv4
+
+
+class Check6(CheckIP):
+    def __init__(self, host, **options):
+        super().__init__(**options)
+        self.addr = host.ipv6
+
+
+class CheckPing4(Check4):
+    def check(self):
+        command = ['/bin/ping', '-c', '1', self.addr]
+        return self.exec_with_timeout(command)
+
+
+class CheckPing6(Check6):
+    def check(self):
+        command = ['/bin/ping6', '-c', '1', self.addr]
+        return self.exec_with_timeout(command)
+
+
+class CheckDNSZone(Check):
+    def __init__(self, zone, **options):
+        super().__init__(**options)
+        self.zone = zone
+
+    def __repr__(self):
+        return '<%s on %s, options=%s>' % (self.__class__.__name__, self.zone, self._options)
+
+    def check(self):
+        self.errmsg = "Unimplemented"
         return False
-
-
-class CheckPing(Check):
-    def check(self, host, addr):
-        v4command = ['/bin/ping', '-c', '1', addr]
-        v6command = ['/bin/ping6', '-c', '1', addr]
-        return self.exec_by_ip_family(addr, v4command, v6command)
+        command = ['check_dns_soa', '-4', '-H', self.zone]
+        return self.exec_with_timeout(command)
 
 
 class CheckDNSRec(Check):
@@ -140,32 +156,43 @@ class CheckDNSAut(Check):
 
 
 class Host(object):
-    def __init__(self, ipv4, ipv6, checks):
+    def __init__(self, ipv4, ipv6):
         self.ipv4 = ipv4
         self.ipv6 = ipv6
-        self.checks = checks
 
     def __repr__(self):
         return '<Host ipv4="%s" ipv6="%s">' % (self.ipv4, self.ipv6)
 
-    def check(self, executor):
-        fail = 0
-        for chk in self.checks:
-            for addr in [self.ipv4, self.ipv6]:
-                executor.submit(chk.run, self, addr)
+
+def genChecks(check, dests):
+    return [check(d) for d in dests]
 
 
-hosts = [
-    Host(ipv4='127.0.0.1', ipv6='::1', checks=[
-        CheckPing(),
-        CheckDNSAut(zone='prout.net'),
-        CheckDNSRec(test='AAAA google.fr')
-    ]),
-    Host(ipv4='127.0.0.0', ipv6='::42', checks=[CheckPing()]),
-]
+mail   = Host(ipv4='127.0.0.1', ipv6='::1')
+web    = Host(ipv4='127.0.0.0', ipv6='::42')
+alsace = Host(ipv4='127.0.0.1', ipv6='::1')
+
+checks = \
+  genChecks(CheckDNSZone, ["arn-fai.net", "netlib.re"]) + \
+  genChecks(CheckPing4, [mail, web]) + \
+  genChecks(CheckPing6, [mail, web])
+  # genChecks(CheckSMTP4, [mail, alsace])
+  # genChecks(CheckSMTP6, [mail, alsace])
 
 
 if __name__ == '__main__':
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        for host in hosts:
-            host.check(executor)
+        def runner(check):
+            return check.run(), check
+
+        futures = []
+        for check in checks:
+            futures.append(executor.submit(runner, check))
+
+        for future in concurrent.futures.as_completed(futures):
+            success, check = future.result()
+            if success:
+                print("Check %s successful!" % (str(check)))
+            else:
+                print("Check %s failed:\n%s" %
+                      (str(check), check.errmsg))

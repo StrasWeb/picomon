@@ -1,6 +1,5 @@
 import concurrent.futures
 from time import sleep
-from IPy import IP
 from sys import hexversion as sys_hexversion
 
 
@@ -14,7 +13,7 @@ else:
     import subprocess
     from subprocess import PIPE
 
-    class TimeoutExpired(subprocess.SubprocessError):
+    class TimeoutExpired(subprocess.CalledProcessError):
         def __init__(self, args, timeout=None, output=None):
             self.cmd, self.timeout, self.output = args, timeout, output
 
@@ -59,6 +58,10 @@ else:
                     if self._exc:
                         raise self._exc
                     return self._out, self._err
+
+
+def ip_version(addr):
+    return 6 if ':' in addr else 4
 
 
 class Check(object):
@@ -108,7 +111,7 @@ class Check(object):
         return p.returncode == 0
 
     def exec_by_ip_family(self, addr, v4command, v6command):
-        ipv = IP(addr).version()
+        ipv = ip_version(addr)
         if ipv == 4:
             return self.exec_with_timeout(v4command)
         if ipv == 6:

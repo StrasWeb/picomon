@@ -119,14 +119,14 @@ class Check6(CheckIP):
 
 class CheckPing4(Check4):
     def check(self):
-        command = ['/bin/ping', '-c', '1', self.addr]
-        return self.exec_with_timeout(command)
+        command = ['/bin/ping', '-c', '1', '-W', '2', self.addr]
+        return self.exec_with_timeout(command, timeout=3)
 
 
 class CheckPing6(Check6):
     def check(self):
-        command = ['/bin/ping6', '-c', '1', self.addr]
-        return self.exec_with_timeout(command)
+        command = ['/bin/ping6', '-c', '1', '-W', '2', self.addr]
+        return self.exec_with_timeout(command, timeout=3)
 
 
 class CheckDNSZone(Check):

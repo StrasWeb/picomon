@@ -9,3 +9,8 @@ Dependencies
 Written in Python, it needs at least python 3.2 for the ThreadPools.
 
 On debian Wheezy the package is `python3`.
+
+License
+-------
+
+This project is placed under GNU GPLv3. See COPYING.

@@ -1,4 +1,11 @@
 from lib.subprocess_compat import TimeoutExpired, Popen, PIPE
+from threading import Lock
+
+
+# used for hack in Check.exec_with_timeout() because Popen is not
+# atomic when failing to spawn command
+# see http://bugs.python.org/issue18851
+lock = Lock()
 
 
 class Host(object):
@@ -41,7 +48,14 @@ class Check(object):
 
     def exec_with_timeout(self, command, timeout=2):
         self.errmsg = ''
-        p = Popen(command, stdout=PIPE, stderr=PIPE)
+        try:
+            lock.acquire()
+            p = Popen(command, stdout=PIPE, stderr=PIPE)
+        except OSError as e:
+            self.errmsg = 'Check not available: ' + e.strerror
+            return False
+        finally:
+            lock.release()
         try:
             out, err = p.communicate(timeout=timeout)
         except TimeoutExpired:

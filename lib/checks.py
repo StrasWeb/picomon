@@ -106,9 +106,9 @@ class CheckDNSZone(Check):
         return '<%s on %s, options=%s>' % (self.__class__.__name__, self.zone, self._options)
 
     def check(self):
-        self.errmsg = "Unimplemented"
-        return False
-        command = ['check_dns_soa', '-4', '-H', self.zone]
+        command = ['check_dns_soa', '-H', self.zone]
+        if self._options.get('ip_version', 0) in [4, 6]:
+            command.append('-' + str(self._options['ip_version']))
         return self.exec_with_timeout(command)
 
 

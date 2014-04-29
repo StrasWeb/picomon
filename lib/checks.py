@@ -70,7 +70,8 @@ class Check(object):
 
 class CheckIP(Check):
     def __repr__(self):
-        return '<%s on %s, options=%s>' % (self.__class__.__name__, self.addr, self._options)
+        return '<%s on %s, options=%s>' % (self.__class__.__name__,
+            self.addr, self._options)
 
 
 class Check4(CheckIP):
@@ -103,7 +104,8 @@ class CheckDNSZone(Check):
         self.zone = zone
 
     def __repr__(self):
-        return '<%s on %s, options=%s>' % (self.__class__.__name__, self.zone, self._options)
+        return '<%s on %s, options=%s>' % (self.__class__.__name__,
+            self.zone, self._options)
 
     def check(self):
         command = ['check_dns_soa', '-H', self.zone]

@@ -18,8 +18,8 @@ class Host(object):
 
 
 class Checks(list):
-    def add(self, check, dests):
-        self += [check(d) for d in dests]
+    def add(self, check, dests, **options):
+        self += [check(d, **options) for d in dests]
 
 
 class Check(object):

@@ -121,9 +121,17 @@ class CheckDNSZone(Check):
 
 
 class CheckDNSRec(Check):
-    def check(self, host, addr):
-        self.errmsg = "Unimplemented"
-        return False
+    def check(self):
+        command = ['dig', 'www.google.com', '@' + self.addr]
+        return self.exec_with_timeout(command, pattern='status: NOERROR')
+
+
+class CheckDNSRec4(CheckDNSRec, Check4):
+    pass
+
+
+class CheckDNSRec6(CheckDNSRec, Check6):
+    pass
 
 
 class CheckDNSAut(Check):

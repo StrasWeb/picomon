@@ -1,5 +1,6 @@
 from lib.subprocess_compat import TimeoutExpired, Popen, PIPE
 from threading import Lock
+import re
 
 
 # used for hack in Check.exec_with_timeout() because Popen is not
@@ -46,7 +47,7 @@ class Check(object):
         self.teardown()
         return self.ok
 
-    def exec_with_timeout(self, command, timeout=2):
+    def exec_with_timeout(self, command, timeout=2, pattern=''):
         self.errmsg = ''
         try:
             lock.acquire()
@@ -62,9 +63,14 @@ class Check(object):
             p.kill()
             out, err = p.communicate()
             self.errmsg += "Operation timed out\n"
+            return False
         if p.returncode != 0:
             self.errmsg += "stdout: " + str(out) + '\n' + \
                            "stderr: " + str(err) + '\n'
+        if re.search(pattern, str(out), flags=re.M) is None:
+            self.errmsg += "Pattern not found in reply: '%s'\n" + \
+                "stdout: %s" % (pattern, out.decode())
+            return False
         return p.returncode == 0
 
 

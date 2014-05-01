@@ -65,8 +65,10 @@ class Check(object):
             self.errmsg += "Operation timed out\n"
             return False
         if p.returncode != 0:
-            self.errmsg += "stdout: " + str(out) + '\n' + \
-                           "stderr: " + str(err) + '\n'
+            if len(out) > 0:
+                self.errmsg += "stdout:\n" + out.decode() + '\n'
+            if len(err) > 0:
+                self.errmsg += "stderr:\n" + err.decode() + '\n'
         if re.search(pattern, str(out), flags=re.M) is None:
             self.errmsg += "Pattern not found in reply: '%s'\n" + \
                 "stdout: %s" % (pattern, out.decode())

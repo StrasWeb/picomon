@@ -1,6 +1,11 @@
 from lib.checks import *
 
 
+# This is the base granularity (in seconds) for polling
+# Each check may then individually be configured to run every N * tick
+base_tick = 60
+
+
 mail     = Host(ipv4='127.0.0.1', ipv6='::1')
 web      = Host(ipv4='127.0.0.0', ipv6='::42')
 alsace   = Host(ipv4='127.0.0.1', ipv6='::1')

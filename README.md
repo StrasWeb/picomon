@@ -39,6 +39,9 @@ Current state output
 Just send the `SIGUSR1` signal to the process: it will first print the checks
 in error state and then the successful checks to the standard output.
 
+Please note that this will cancel the current `base_tick` sleeping period
+and thus trigger a new run.
+
 
 License
 -------

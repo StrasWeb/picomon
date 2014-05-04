@@ -39,8 +39,7 @@ class Check(object):
             self._options)
 
     def setup(self):
-        self.every_count += 1
-        return self.every_count == self.every
+        pass
 
     def teardown(self):
         pass
@@ -49,11 +48,10 @@ class Check(object):
         pass
 
     def run(self, immediate=False):
-        run = self.setup()
-        if run or immediate:
-            passed = self.check()
-            self.teardown()
-            if not passed:
+        self.every_count += 1
+        if self.every_count == self.every or immediate:
+            self.setup()
+            if not self.check():
                 self.retry_count += 1
                 if self.retry_count > self.retry or immediate:
                     self.ok = False
@@ -61,6 +59,7 @@ class Check(object):
                 self.ok = True
                 self.retry_count = 0
             self.every_count = 0
+            self.teardown()
         return self.ok
 
     def exec_with_timeout(self, command, timeout=2, pattern=''):

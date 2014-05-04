@@ -11,17 +11,16 @@ def usr1_handler(signum, frame):
     Checks in error:""")
     for check in checks:
         if not check.ok:
-            print ('-' * 10)
+            print ('-+' * 40)
             print ("Check %s is in error state:\n\t%s" % (check,
                 check.errmsg.strip()))
-    print ('-' * 10, """
+    print ('-+' * 40, """
 
-    Other checks (usually OK):""")
+    Other checks (usually OK but may be in retry mode):""")
     for check in checks:
         if check.ok:
-            print ('-' * 10)
-            print ("Check %s is OK" % check)
-    print ('-' * 10)
+            print ("Check %s is %s" % (check,
+                   "OK" if check.retry_count == 0 else "retrying"))
 
 
 if __name__ == '__main__':
@@ -51,7 +50,7 @@ if __name__ == '__main__':
                     print("Check %s successful!" % (str(check)))
                 else:
                     print("Check %s failed:\n%s" %
-                          (str(check), check.errmsg))
+                          (str(check), check.errmsg.strip()))
         else:
             # This will drift slowly as it takes (base_tick + espilon) seconds
             while True:

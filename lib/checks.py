@@ -34,7 +34,9 @@ class Check(object):
         self.ok          = True
 
     def __repr__(self):
-        return '<%s options=%s>' % (self.__class__.__name__, self._options)
+        return '{:<15s} N={}/{}, R={}/{}, {}'.format(self.__class__.__name__,
+            self.every_count, self.every, self.retry_count, self.retry,
+            self._options)
 
     def setup(self):
         self.every_count += 1
@@ -80,20 +82,21 @@ class Check(object):
             return False
         if p.returncode != 0:
             if len(out) > 0:
-                self.errmsg += "stdout:\n" + out.decode() + '\n'
+                self.errmsg += "stdout:\n" + \
+                               out.decode(errors='replace') + '\n'
             if len(err) > 0:
-                self.errmsg += "stderr:\n" + err.decode() + '\n'
+                self.errmsg += "stderr:\n" + \
+                               err.decode(errors='replace') + '\n'
         if re.search(pattern, str(out), flags=re.M) is None:
-            self.errmsg += "Pattern not found in reply: '%s'\n" + \
-                "stdout: %s" % (pattern, out.decode())
+            self.errmsg += ("Pattern '%s' not found in reply.\nstdout: %s"
+                            % (pattern, out.decode(errors='replace')))
             return False
         return p.returncode == 0
 
 
 class CheckIP(Check):
     def __repr__(self):
-        return '<%s on %s, options=%s>' % (self.__class__.__name__,
-            self.addr, self._options)
+        return '<' + super().__repr__() + ' on %s>' % (self.addr)
 
 
 class Check4(CheckIP):
@@ -126,8 +129,7 @@ class CheckDNSZone(Check):
         self.zone = zone
 
     def __repr__(self):
-        return '<%s on %s, options=%s>' % (self.__class__.__name__,
-            self.zone, self._options)
+        return '<' + super().__repr__() + ' for %s>' % (self.zone)
 
     def check(self):
         command = ['check_dns_soa', '-H', self.zone]

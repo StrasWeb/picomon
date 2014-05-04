@@ -95,7 +95,7 @@ class Check(object):
 
 class CheckIP(Check):
     def __repr__(self):
-        return '<' + super().__repr__() + ' on %s>' % (self.addr)
+        return '<%s on %s>' % (super().__repr__(), self.addr)
 
 
 class Check4(CheckIP):
@@ -128,7 +128,7 @@ class CheckDNSZone(Check):
         self.zone = zone
 
     def __repr__(self):
-        return '<' + super().__repr__() + ' for %s>' % (self.zone)
+        return '<%s for %s>' % (super().__repr__(), self.zone)
 
     def check(self):
         command = ['check_dns_soa', '-H', self.zone]

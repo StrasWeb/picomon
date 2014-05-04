@@ -25,15 +25,20 @@ class Checks(list):
 
 class Check(object):
     def __init__(self, **options):
-        self._options = options
-        self.errmsg = ''
-        self.ok = True
+        self._options    = options
+        self.retry       = options.get('retry', 0)
+        self.retry_count = 0
+        self.every       = options.get('every', 1)
+        self.every_count = 0
+        self.errmsg      = ''
+        self.ok          = True
 
     def __repr__(self):
         return '<%s options=%s>' % (self.__class__.__name__, self._options)
 
     def setup(self):
-        pass
+        self.every_count += 1
+        return self.every_count == self.every
 
     def teardown(self):
         pass
@@ -41,10 +46,19 @@ class Check(object):
     def check(self, host, addr):
         pass
 
-    def run(self):
-        self.setup()
-        self.ok = self.check()
-        self.teardown()
+    def run(self, immediate=False):
+        run = self.setup()
+        if run or immediate:
+            passed = self.check()
+            self.teardown()
+            if not passed:
+                self.retry_count += 1
+                if self.retry_count > self.retry or immediate:
+                    self.ok = False
+            else:
+                self.ok = True
+                self.retry_count = 0
+            self.every_count = 0
         return self.ok
 
     def exec_with_timeout(self, command, timeout=2, pattern=''):

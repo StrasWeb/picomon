@@ -38,7 +38,7 @@ if __name__ == '__main__':
     # do the actual polling
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         def runner(check):
-            return check.run(), check
+            return check.run(immediate=True), check
 
         if args.one:
             futures = []

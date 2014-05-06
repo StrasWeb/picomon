@@ -41,17 +41,15 @@ class Check(object):
         pass
 
     def run(self, immediate=False):
-        self.every_count += 1
-        if self.every_count == self.every or immediate:
+        self.every_count = (self.every_count + 1) % self.every
+        if self.every_count == 0 or immediate:
             self.setup()
             if not self.check():
-                self.retry_count += 1
-                if self.retry_count > self.retry or immediate:
+                self.retry_count = (self.retry_count + 1) % (self.retry + 1)
+                if self.retry_count == 0 or immediate:
                     self.ok = False
             else:
                 self.ok = True
-                self.retry_count = 0
-            self.every_count = 0
             self.teardown()
         return self.ok
 

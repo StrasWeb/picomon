@@ -45,11 +45,12 @@ class Check(object):
         if self.every_count == 0 or immediate:
             self.setup()
             if not self.check():
-                self.retry_count = (self.retry_count + 1) % (self.retry + 1)
-                if self.retry_count == 0 or immediate:
+                self.retry_count = min(self.retry_count + 1, self.retry)
+                if self.retry_count == self.retry or immediate:
                     self.ok = False
             else:
                 self.ok = True
+                self.retry_count = 0
             self.teardown()
         return self.ok
 

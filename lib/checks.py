@@ -144,3 +144,42 @@ class CheckDNSAut(Check):
     def check(self, host, addr):
         self.errmsg = "Unimplemented"
         return False
+
+
+class CheckHTTP(Check):
+    def build_command(self):
+        command = ['/usr/lib/nagios/plugins/check_http',
+                   '-I', self.addr, '-t', '2']
+        if 'status' in self._options:
+            command += ['-e', str(self._options['status'])]
+        if 'vhost' in self._options:
+            command += ['-H', str(self._options['vhost'])]
+        if 'string' in self._options:
+            command += ['-s', str(self._options['string'])]
+        return command
+
+    def check(self):
+        command = self.build_command()
+        return self.exec_with_timeout(command, timeout=3)
+
+
+class CheckHTTPS(CheckHTTP):
+    def check(self):
+        command = self.build_command() + ['--ssl']
+        return self.exec_with_timeout(command, timeout=3)
+
+
+class CheckHTTP4(CheckHTTP, Check4):
+    pass
+
+
+class CheckHTTP6(CheckHTTP, Check6):
+    pass
+
+
+class CheckHTTPS4(CheckHTTPS, Check4):
+    pass
+
+
+class CheckHTTPS6(CheckHTTPS, Check6):
+    pass

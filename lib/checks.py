@@ -1,5 +1,6 @@
 from lib.subprocess_compat import TimeoutExpired, Popen, PIPE
 import re
+import lib.mails as mails
 
 
 class Host(object):
@@ -50,7 +51,10 @@ class Check(object):
                 self.retry_count = min(self.retry_count + 1, self.retry)
                 if self.retry_count == self.retry or immediate:
                     self.ok = False
+                    mails.send_email_for_check(self)
             else:
+                if not self.ok:
+                    mails.send_email_for_check(self)
                 self.ok = True
                 self.retry_count = 0
             self.teardown()

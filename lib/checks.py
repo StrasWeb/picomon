@@ -3,9 +3,10 @@ import re
 
 
 class Host(object):
-    def __init__(self, ipv4, ipv6):
+    def __init__(self, ipv4, ipv6, name=None):
         self.ipv4 = ipv4
         self.ipv6 = ipv6
+        self.name = name if name is not None else "%s/%s" % (ipv4, ipv6)
 
     def __repr__(self):
         return '<Host ipv4="%s" ipv6="%s">' % (self.ipv4, self.ipv6)
@@ -25,6 +26,7 @@ class Check(object):
         self.every_count = 0
         self.errmsg      = ''
         self.ok          = True
+        self.target_name = options.get('target_name', 'Unknown')
 
     def __repr__(self):
         return '{:<15s} N={}/{}, R={}/{}, {}'.format(self.__class__.__name__,
@@ -83,19 +85,23 @@ class Check(object):
 
 
 class CheckIP(Check):
+    def __init__(self, host, **options):
+        super().__init__(**options)
+        self.target_name = host.name
+
     def __repr__(self):
         return '<%s on %s>' % (super().__repr__(), self.addr)
 
 
 class Check4(CheckIP):
     def __init__(self, host, **options):
-        super().__init__(**options)
+        super().__init__(host, **options)
         self.addr = host.ipv4
 
 
 class Check6(CheckIP):
     def __init__(self, host, **options):
-        super().__init__(**options)
+        super().__init__(host, **options)
         self.addr = host.ipv6
 
 
@@ -115,6 +121,7 @@ class CheckDNSZone(Check):
     def __init__(self, zone, **options):
         super().__init__(**options)
         self.zone = zone
+        self.target_name = "zone '%s'" % zone
 
     def __repr__(self):
         return '<%s for %s>' % (super().__repr__(), self.zone)

@@ -5,7 +5,7 @@ from collections import Iterable
 
 
 class Host(object):
-    def __init__(self, ipv4, ipv6, name=None):
+    def __init__(self, ipv4='192.0.2.1', ipv6='2001:db8::1', name=None):
         self.ipv4 = ipv4
         self.ipv6 = ipv6
         self.name = name if name is not None else "%s/%s" % (ipv4, ipv6)

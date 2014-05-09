@@ -167,6 +167,8 @@ class CheckHTTP(Check):
             command += ['-H', str(self._options['vhost'])]
         if 'string' in self._options:
             command += ['-s', str(self._options['string'])]
+        if 'url' in self._options:
+            command += ['-u', str(self._options['url'])]
         return command
 
     def check(self):

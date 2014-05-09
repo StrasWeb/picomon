@@ -208,7 +208,8 @@ class CheckSMTP(Check):
     def build_command(self):
         command = ['/usr/lib/nagios/plugins/check_smtp',
                    '-H', self.addr,
-                   '-f', self._options.get('from', 'nonexisting@localhost'),
+                   '-f', self._options.get('from_addr',
+                                           'picomon@localhost.local'),
                    '-t', '2']
         if 'command' in self._options:
             command += ['-C', str(self._options['command'])]

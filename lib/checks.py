@@ -34,6 +34,7 @@ class Check(object):
         self.errmsg      = ''
         self.ok          = True
         self.target_name = options.get('target_name', 'Unknown')
+        self.timeout     = options.get('timeout', 2)
 
     def __repr__(self):
         return '{:<15s} N={}/{}, R={}/{}, {}'.format(self.__class__.__name__,
@@ -66,7 +67,8 @@ class Check(object):
             self.teardown()
         return self.ok
 
-    def exec_with_timeout(self, command, timeout=2, pattern=''):
+    def exec_with_timeout(self, command, timeout=None, pattern=''):
+        timeout = self.timeout if timeout is None else timeout
         self.errmsg = ''
         try:
             p = Popen(command, stdout=PIPE, stderr=PIPE)
@@ -117,14 +119,14 @@ class Check6(CheckIP):
 
 class CheckPing4(Check4):
     def check(self):
-        command = ['/bin/ping', '-c', '1', '-W', '2', self.addr]
-        return self.exec_with_timeout(command, timeout=3)
+        command = ['/bin/ping', '-c', '1', '-W', str(self.timeout), self.addr]
+        return self.exec_with_timeout(command, timeout=self.timeout+1)
 
 
 class CheckPing6(Check6):
     def check(self):
-        command = ['/bin/ping6', '-c', '1', '-W', '2', self.addr]
-        return self.exec_with_timeout(command, timeout=3)
+        command = ['/bin/ping6', '-c', '1', '-W', str(self.timeout), self.addr]
+        return self.exec_with_timeout(command, timeout=self.timeout+1)
 
 
 class CheckDNSZone(Check):
@@ -166,7 +168,7 @@ class CheckDNSAut(Check):
 class CheckHTTP(Check):
     def build_command(self):
         command = ['/usr/lib/nagios/plugins/check_http',
-                   '-I', self.addr, '-t', '2']
+                   '-I', self.addr, '-t', str(self.timeout)]
         if 'status' in self._options:
             command += ['-e', str(self._options['status'])]
         if 'vhost' in self._options:
@@ -179,13 +181,13 @@ class CheckHTTP(Check):
 
     def check(self):
         command = self.build_command()
-        return self.exec_with_timeout(command, timeout=3)
+        return self.exec_with_timeout(command, timeout=self.timeout+1)
 
 
 class CheckHTTPS(CheckHTTP):
     def check(self):
         command = self.build_command() + ['--ssl']
-        return self.exec_with_timeout(command, timeout=3)
+        return self.exec_with_timeout(command, timeout=self.timeout+1)
 
 
 class CheckHTTP4(CheckHTTP, Check4):
@@ -210,7 +212,7 @@ class CheckSMTP(Check):
                    '-H', self.addr,
                    '-f', self._options.get('from_addr',
                                            'picomon@localhost.local'),
-                   '-t', '2']
+                   '-t', str(self.timeout)]
         if 'command' in self._options:
             command += ['-C', str(self._options['command'])]
         if 'response' in self._options:
@@ -219,7 +221,7 @@ class CheckSMTP(Check):
 
     def check(self):
         command = self.build_command()
-        return self.exec_with_timeout(command, timeout=3)
+        return self.exec_with_timeout(command, timeout=self.timeout+1)
 
 
 class CheckSMTP4(CheckSMTP, Check4):

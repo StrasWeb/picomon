@@ -1,6 +1,7 @@
 from lib.subprocess_compat import TimeoutExpired, Popen, PIPE
 import re
 import lib.mails as mails
+from collections import Iterable
 
 
 class Host(object):
@@ -14,8 +15,13 @@ class Host(object):
 
 
 class Checks(list):
-    def add(self, check, dests, **options):
-        self += [check(d, **options) for d in dests]
+    def add(self, checks, dests, **options):
+        if not isinstance(checks, Iterable):
+            checks = [checks]
+        if not isinstance(dests, Iterable):
+            dests = [dests]
+        for check in checks:
+            self += [check(d, **options) for d in dests]
 
 
 class Check(object):

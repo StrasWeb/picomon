@@ -202,3 +202,28 @@ class CheckHTTPS4(CheckHTTPS, Check4):
 
 class CheckHTTPS6(CheckHTTPS, Check6):
     pass
+
+
+class CheckSMTP(Check):
+    def build_command(self):
+        command = ['/usr/lib/nagios/plugins/check_smtp',
+                   '-H', self.addr,
+                   '-f', self._options.get('from', 'nonexisting@localhost'),
+                   '-t', '2']
+        if 'command' in self._options:
+            command += ['-C', str(self._options['command'])]
+        if 'response' in self._options:
+            command += ['-R', str(self._options['response'])]
+        return command
+
+    def check(self):
+        command = self.build_command()
+        return self.exec_with_timeout(command, timeout=3)
+
+
+class CheckSMTP4(CheckSMTP, Check4):
+    pass
+
+
+class CheckSMTP6(CheckSMTP, Check6):
+    pass

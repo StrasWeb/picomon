@@ -61,8 +61,8 @@ class Check(object):
                     mails.send_email_for_check(self)
             else:
                 if not self.ok:
+                    self.ok = True
                     mails.send_email_for_check(self)
-                self.ok = True
                 self.retry_count = 0
             self.teardown()
         return self.ok

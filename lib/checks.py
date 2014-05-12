@@ -230,3 +230,24 @@ class CheckSMTP4(CheckSMTP, Check4):
 
 class CheckSMTP6(CheckSMTP, Check6):
     pass
+
+
+class CheckOpenVPN(Check):
+    def check(self):
+        command = ['/usr/lib/nagios/plugins/check_udp',
+                   '-H', self.addr,
+                   '-p', "1194",
+                   '-m', "1",
+                   '-M', "ok",  # actualy just having a reply is enough
+                   '-s', "\x38\x01\x01\x01\x01\x01\x01\x01\x42",
+                   '-e', "@",
+                   '-t', str(self.timeout)]
+        return self.exec_with_timeout(command, timeout=self.timeout+1)
+
+
+class CheckOpenVPN4(CheckOpenVPN, Check4):
+    pass
+
+
+class CheckOpenVPN6(CheckOpenVPN, Check6):
+    pass

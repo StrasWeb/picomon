@@ -1,6 +1,6 @@
-from lib.subprocess_compat import TimeoutExpired, Popen, PIPE
+from .subprocess_compat import TimeoutExpired, Popen, PIPE
 import re
-import lib.mails as mails
+from . import mails
 from collections import Iterable
 
 

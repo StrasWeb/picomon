@@ -21,10 +21,9 @@ def send_email_for_check(check):
                           dest=check.target_name))
 
     msg_text = ''
-    if check.ok:
-        msg_text = "FYI last error for this check was:\n"
-    msg_text += ("Check %s failed:\n%s" %
-                (str(check), check.errmsg.strip()))
+    if not check.ok:
+        msg_text += ("Check %s failed:\n%s" %
+                    (str(check), check.errmsg.strip()))
 
     # encode / decode is a fix that didn't make it into Debian Wheezy
     # http://bugs.python.org/issue16948

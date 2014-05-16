@@ -57,8 +57,9 @@ class Check(object):
             if not self.check():
                 self.retry_count = min(self.retry_count + 1, self.retry)
                 if self.retry_count == self.retry or immediate:
-                    self.ok = False
-                    mails.send_email_for_check(self)
+                    if self.ok:
+                        self.ok = False
+                        mails.send_email_for_check(self)
             else:
                 if not self.ok:
                     self.ok = True

@@ -8,6 +8,10 @@ config.base_tick = 60
 
 # Email addresses to send to when an alert is triggered
 config.emails.to.append('john@localhost')
+# The From: address
+#config.emails.addr_from = 'Picomon <picomon@domain.tld>
+# The SMTP host, with optional :port suffix
+#config.emails.smtp_host = 'localhost:25'
 
 # Subject template for state change email notifications
 # available substitutions:

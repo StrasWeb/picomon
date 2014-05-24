@@ -1,4 +1,3 @@
-import socket
 import smtplib
 from email.mime.text import MIMEText
 from collections import defaultdict
@@ -11,8 +10,6 @@ email.charset.add_charset('utf-8', email.charset.QP, email.charset.QP, 'utf-8')
 
 def send_email_for_check(check):
     from . import config
-    addr_from  = "Picomon <picomon@%s>" % socket.getfqdn()
-
     # ensure we do not traceback with unknown substitutions
     subject = config.emails.subject_tpl.format_map(
               defaultdict(lambda: "<no substitution>",
@@ -29,13 +26,13 @@ def send_email_for_check(check):
     # http://bugs.python.org/issue16948
     msg = MIMEText(msg_text.encode('utf-8').decode('latin1'), 'plain', 'utf-8')
     msg['Subject'] = subject
-    msg['From']    = addr_from
+    msg['From']    = config.emails.addr_from
     msg['To']      = ", ".join(config.emails.to)
 
     try:
-        server = smtplib.SMTP('localhost')
+        server = smtplib.SMTP(config.emails.smtp_host)
         # server.set_debuglevel(1)
-        server.sendmail(addr_from, config.emails.to, msg.as_string())
+        server.sendmail(config.emails.addr_from, config.emails.to, msg.as_string())
         server.quit()
     except Exception as e:
         print("Couldn't send email: %s" % str(e), file=stderr)

@@ -1,3 +1,4 @@
+import socket
 from .attrtree import AttrTree
 from .checks import Checks
 
@@ -13,6 +14,11 @@ config.install_attr('base_tick', 60)
 
 # Email addresses to send to when an alert is triggered
 config.install_attr('emails.to', [])
+# The From: address
+config.install_attr('emails.addr_from',
+                    'Picomon <picomon@%s>' % socket.getfqdn())
+# The SMTP host, with optional :port suffix
+config.install_attr('emails.smtp_host', 'localhost:25')
 
 # Subject template for state change email notifications
 # available substitutions:

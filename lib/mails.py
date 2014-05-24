@@ -10,11 +10,11 @@ import email.charset
 email.charset.add_charset('utf-8', email.charset.QP, email.charset.QP, 'utf-8')
 
 def send_email_for_check(check):
-    from config import emails, subject_tpl
+    from . import config
     addr_from  = "Picomon <picomon@%s>" % socket.getfqdn()
 
     # ensure we do not traceback with unknown substitutions
-    subject = subject_tpl.format_map(
+    subject = config.emails.subject_tpl.format_map(
               defaultdict(lambda: "<no substitution>",
                           state='OK' if check.ok else 'Problem',
                           check=check.__class__.__name__,
@@ -30,12 +30,12 @@ def send_email_for_check(check):
     msg = MIMEText(msg_text.encode('utf-8').decode('latin1'), 'plain', 'utf-8')
     msg['Subject'] = subject
     msg['From']    = addr_from
-    msg['To']      = ", ".join(emails)
+    msg['To']      = ", ".join(config.emails.to)
 
     try:
         server = smtplib.SMTP('localhost')
         # server.set_debuglevel(1)
-        server.sendmail(addr_from, emails, msg.as_string())
+        server.sendmail(addr_from, config.emails.to, msg.as_string())
         server.quit()
     except Exception as e:
         print("Couldn't send email: %s" % str(e), file=stderr)

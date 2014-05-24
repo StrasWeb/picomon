@@ -24,7 +24,8 @@ config.emails.subject_tpl = "[ARN] {state}: {check} on {dest}"
 mail     = Host(ipv4='127.0.0.1', ipv6='::1', name='LXC mail')
 web      = Host(ipv4='127.0.0.0', ipv6='::42', name='Bad IPs')
 alsace   = Host(ipv4='127.0.0.1', ipv6='::1')
-recursif = Host(ipv4='89.234.141.66', ipv6='2a00:5881:8100:1000::31', name='DNS récursif')
+recursif = Host(ipv4='89.234.141.66', ipv6='2a00:5881:8100:1000::31',
+                name='DNS récursif')
 
 config.checks.add(CheckDNSZone, ["arn-fai.net", "netlib.re"], ip_version=4)
 config.checks.add(CheckPing4, [mail, web], retry=2)

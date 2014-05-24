@@ -38,8 +38,11 @@ class Check(object):
 
     def __repr__(self):
         return '{:<15s} N={}/{}, R={}/{}, {}'.format(self.__class__.__name__,
-            self.every_count, self.every, self.retry_count, self.retry,
-            self._options)
+                                                     self.every_count,
+                                                     self.every,
+                                                     self.retry_count,
+                                                     self.retry,
+                                                     self._options)
 
     def setup(self):
         pass
@@ -121,13 +124,13 @@ class Check6(CheckIP):
 class CheckPing4(Check4):
     def check(self):
         command = ['/bin/ping', '-c', '1', '-W', str(self.timeout), self.addr]
-        return self.exec_with_timeout(command, timeout=self.timeout+1)
+        return self.exec_with_timeout(command, timeout=self.timeout + 1)
 
 
 class CheckPing6(Check6):
     def check(self):
         command = ['/bin/ping6', '-c', '1', '-W', str(self.timeout), self.addr]
-        return self.exec_with_timeout(command, timeout=self.timeout+1)
+        return self.exec_with_timeout(command, timeout=self.timeout + 1)
 
 
 class CheckDNSZone(Check):
@@ -182,13 +185,13 @@ class CheckHTTP(Check):
 
     def check(self):
         command = self.build_command()
-        return self.exec_with_timeout(command, timeout=self.timeout+1)
+        return self.exec_with_timeout(command, timeout=self.timeout + 1)
 
 
 class CheckHTTPS(CheckHTTP):
     def check(self):
         command = self.build_command() + ['--ssl']
-        return self.exec_with_timeout(command, timeout=self.timeout+1)
+        return self.exec_with_timeout(command, timeout=self.timeout + 1)
 
 
 class CheckHTTP4(CheckHTTP, Check4):
@@ -222,7 +225,7 @@ class CheckSMTP(Check):
 
     def check(self):
         command = self.build_command()
-        return self.exec_with_timeout(command, timeout=self.timeout+1)
+        return self.exec_with_timeout(command, timeout=self.timeout + 1)
 
 
 class CheckSMTP4(CheckSMTP, Check4):
@@ -243,7 +246,7 @@ class CheckOpenVPN(Check):
                    '-s', "\x38\x01\x01\x01\x01\x01\x01\x01\x42",
                    '-e', "@",
                    '-t', str(self.timeout)]
-        return self.exec_with_timeout(command, timeout=self.timeout+1)
+        return self.exec_with_timeout(command, timeout=self.timeout + 1)
 
 
 class CheckOpenVPN4(CheckOpenVPN, Check4):

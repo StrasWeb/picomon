@@ -24,5 +24,7 @@ config.install_attr('emails.smtp_host', 'localhost:25')
 # available substitutions:
 #   - state ("Problem" or "OK")
 #   - check (check's name, like "CheckDNSRec6")
-#   - dest  (the target of the check ie. an IP or a Host's 'name' parameter)
-config.install_attr('emails.subject_tpl', '[DOMAIN] {state}: {check} on {dest}')
+#   - dest  (the target of the check ie. an IP or a Host's 'name'
+#            parameter)
+config.install_attr('emails.subject_tpl',
+                    '[DOMAIN] {state}: {check} on {dest}')

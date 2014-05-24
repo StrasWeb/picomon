@@ -14,7 +14,7 @@ def usr1_handler(signum, frame):
         if not check.ok:
             print ('-+' * 40)
             print ("Check %s is in error state:\n\t%s" % (check,
-                check.errmsg.strip()))
+                   check.errmsg.strip()))
     print ('-+' * 40, """
 
     Other checks (usually OK but may be in retry mode):""")
@@ -31,8 +31,9 @@ if __name__ == '__main__':
     # Parse command line
     parser = argparse.ArgumentParser()
     parser.add_argument("-1", "--one",
-        help="single run with immediate output of check results (test/debug)",
-        action="store_true")
+                        help="single run with immediate output of " +
+                             "check results (test/debug)",
+                        action="store_true")
     args = parser.parse_args()
 
     # do the actual polling

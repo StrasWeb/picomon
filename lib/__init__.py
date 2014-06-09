@@ -19,6 +19,8 @@ config.install_attr('emails.addr_from',
                     'Picomon <picomon@%s>' % socket.getfqdn())
 # The SMTP host, with optional :port suffix
 config.install_attr('emails.smtp_host', 'localhost:25')
+# The inactive timeout after which to close the SMTP connection
+config.install_attr('emails.smtp_keepalive_timeout', 60)
 
 # Subject template for state change email notifications
 # available substitutions:

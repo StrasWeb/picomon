@@ -4,6 +4,7 @@ import argparse
 from time import sleep
 import config as user_config
 from lib import config
+from lib import mails
 
 
 def usr1_handler(signum, frame):
@@ -59,3 +60,4 @@ if __name__ == '__main__':
                 for check in config.checks:
                     executor.submit(check.run())
                 sleep(config.base_tick)
+    mails.quit()

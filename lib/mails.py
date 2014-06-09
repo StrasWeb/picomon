@@ -3,10 +3,70 @@ from email.mime.text import MIMEText
 from collections import defaultdict
 from sys import stderr
 import email.charset
+from threading import Thread
+import queue
 
 # Switch to quoted-printable so that we don't get something completely
 # unreadable for non-ASCII chars if we have to look at raw email
 email.charset.add_charset('utf-8', email.charset.QP, email.charset.QP, 'utf-8')
+
+
+class ThreadedSMTP(object):
+    """A helper class managing a thread sending emails through smtplib"""
+
+    def __init__(self):
+        self._queue = queue.Queue()
+        self._loop = True
+        self._thread = Thread(target=self.__loop)
+        self._thread.deamon = True
+        self._thread.start()
+
+    def quit(self):
+        if self._loop:
+            self._loop = False
+            self._queue.put(((), {}))  # put a dummy item to wake up the thread
+            self._queue.join()
+            self._thread.join()
+
+    def __server_quit(self, server=None):
+        if server is not None:
+            server.quit()
+        return None
+
+    def __loop(self):
+        from . import config
+        host = config.emails.smtp_host
+        timeout = config.emails.smtp_keepalive_timeout
+
+        server = None
+        while self._loop or not self._queue.empty():
+            try:
+                args, kwargs = self._queue.get(timeout=timeout)
+            except queue.Empty:
+                server = self.__server_quit(server)
+            except KeyboardInterrupt as e:
+                break
+            else:
+                if len(args) or len(kwargs):  # ignore empty items
+                    try:
+                        if server is None:
+                            server = smtplib.SMTP(host)
+                        server.sendmail(*args, **kwargs)
+                    except Exception as e:
+                        print("Couldn't send email: %s" % str(e), file=stderr)
+            finally:
+                self._queue.task_done()
+        self.__server_quit(server)
+
+    def sendmail(self, *args, **kwargs):
+        self._queue.put((args, kwargs))
+
+
+_mailer = ThreadedSMTP()
+
+
+def quit():
+    _mailer.quit()
 
 
 def send_email_for_check(check):
@@ -30,11 +90,5 @@ def send_email_for_check(check):
     msg['From']    = config.emails.addr_from
     msg['To']      = ", ".join(config.emails.to)
 
-    try:
-        server = smtplib.SMTP(config.emails.smtp_host)
-        # server.set_debuglevel(1)
-        server.sendmail(config.emails.addr_from, config.emails.to,
-                        msg.as_string())
-        server.quit()
-    except Exception as e:
-        print("Couldn't send email: %s" % str(e), file=stderr)
+    _mailer.sendmail(config.emails.addr_from, config.emails.to,
+                     msg.as_string())

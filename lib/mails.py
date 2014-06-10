@@ -55,7 +55,8 @@ class ThreadedSMTP(object):
                     except Exception as e:
                         print("Couldn't send email: %s" % str(e), file=stderr)
             finally:
-                self._queue.task_done()
+                if server:  # server is None on exception queue.Empty
+                    self._queue.task_done()
         self.__server_quit(server)
 
     def sendmail(self, *args, **kwargs):

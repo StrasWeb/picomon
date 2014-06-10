@@ -255,3 +255,19 @@ class CheckOpenVPN4(CheckOpenVPN, Check4):
 
 class CheckOpenVPN6(CheckOpenVPN, Check6):
     pass
+
+
+class CheckJabber(Check):
+    def check(self):
+        command = ['/usr/lib/nagios/plugins/check_jabber',
+                   '-H', self.addr,
+                   '-t', str(self.timeout)]
+        return self.exec_with_timeout(command, timeout=self.timeout + 1)
+
+
+class CheckJabber4(CheckJabber, Check4):
+    pass
+
+
+class CheckJabber6(CheckJabber, Check6):
+    pass

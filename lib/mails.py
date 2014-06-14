@@ -2,6 +2,7 @@ import smtplib
 from email.mime.text import MIMEText
 from collections import defaultdict
 from sys import stderr
+from time import strftime
 import email.charset
 from threading import Thread
 import queue
@@ -90,6 +91,7 @@ def send_email_for_check(check):
     msg['Subject'] = subject
     msg['From']    = config.emails.addr_from
     msg['To']      = ", ".join(config.emails.to)
+    msg['Date']    = strftime('%a, %d %b %Y %H:%M:%S %z')
 
     _mailer.sendmail(config.emails.addr_from, config.emails.to,
                      msg.as_string())

@@ -1,5 +1,6 @@
 import smtplib
 from email.mime.text import MIMEText
+from email.utils import make_msgid
 from collections import defaultdict
 from sys import stderr
 from time import strftime
@@ -88,6 +89,14 @@ def send_email_for_check(check):
     # encode / decode is a fix that didn't make it into Debian Wheezy
     # http://bugs.python.org/issue16948
     msg = MIMEText(msg_text.encode('utf-8').decode('latin1'), 'plain', 'utf-8')
+
+    msg['Message-ID'] = make_msgid(type(check).__name__)
+    # if check is OK it's a follow up, so set In-Reply-To
+    if check.ok and hasattr(check, 'mails_msgid'):
+        msg['In-Reply-To'] = check.mails_msgid
+        msg['References'] = check.mails_msgid
+    check.mails_msgid = msg['Message-ID']
+
     msg['Subject'] = subject
     msg['From']    = config.emails.addr_from
     msg['To']      = ", ".join(config.emails.to)

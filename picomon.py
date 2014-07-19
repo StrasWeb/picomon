@@ -58,6 +58,6 @@ if __name__ == '__main__':
             # This will drift slowly as it takes (base_tick + espilon) seconds
             while True:
                 for check in config.checks:
-                    executor.submit(check.run())
+                    executor.submit(check.run)
                 sleep(config.base_tick)
     mails.quit()

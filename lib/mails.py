@@ -71,7 +71,8 @@ _mailer = ThreadedSMTP()
 def quit():
     _mailer.quit()
 
-def _send_email(subject, body, extra_headers={}):
+
+def send_email(subject, body, extra_headers={}):
     from . import config
 
     # encode / decode is a fix that didn't make it into Debian Wheezy
@@ -112,8 +113,9 @@ def send_email_for_check(check):
         extra_headers['References'] = check.mails_msgid
     check.mails_msgid = extra_headers['Message-ID']
 
-    _send_email(subject, msg_text, extra_headers)
+    send_email(subject, msg_text, extra_headers)
+
 
 def send_email_report(text):
     from . import config
-    _send_email(config.emails.report.subject, text)
+    send_email(config.emails.report.subject, text)

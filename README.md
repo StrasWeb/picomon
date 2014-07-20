@@ -58,6 +58,21 @@ Please note that this will cancel the current `base_tick` sleeping period
 and thus trigger a new run.
 
 
+Alert emails
+------------
+
+An email can be sent each time a check switches to error state or recovers from
+an error. These two emails are bound together so that a threading MUA will assemble
+failure/recovery notifications together.
+
+
+Global reports
+--------------
+Picomon can send global reports as a reminder of failed checks.
+They are sent on a regular basis (configured with option `emails.report.every`)
+only if there are some checks in an error state.
+
+
 License
 -------
 

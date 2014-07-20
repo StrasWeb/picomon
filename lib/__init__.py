@@ -21,6 +21,9 @@ config.install_attr('emails.addr_from',
 config.install_attr('emails.smtp_host', 'localhost:25')
 # The inactive timeout after which to close the SMTP connection
 config.install_attr('emails.smtp_keepalive_timeout', 60)
+# Interval in seconds between global reports when some checks are in error
+# 0 disables reports
+config.install_attr('emails.report.every', 0)
 
 # Subject template for state change email notifications
 # available substitutions:
@@ -30,3 +33,5 @@ config.install_attr('emails.smtp_keepalive_timeout', 60)
 #            parameter)
 config.install_attr('emails.subject_tpl',
                     '[DOMAIN] {state}: {check} on {dest}')
+# 0 disables reports
+config.install_attr('emails.report.subject', '[DOMAIN] Picomon error report')

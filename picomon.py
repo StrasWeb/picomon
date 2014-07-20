@@ -7,22 +7,29 @@ from lib import config
 from lib import mails
 
 
-def usr1_handler(signum, frame):
-    print ("""Signal SIGUSR1 caught, printing state of checks.
-
-    Checks in error:""")
+def create_report():
+    has_error = False
+    report = ''
+    report += "\n    Checks in error:\n"
     for check in config.checks:
         if not check.ok:
-            print ('-+' * 40)
-            print ("Check %s is in error state:\n\t%s" % (check,
-                   check.errmsg.strip()))
-    print ('-+' * 40, """
-
-    Other checks (usually OK but may be in retry mode):""")
+            has_error = True
+            report += '-+' * 40 + '\n'
+            report += "%s: %s\n\t%s\n" % (check.target_name, check,
+                      check.errmsg.strip())
+    report += '-+' * 40 + "\n\n    Other checks (usually OK but may be in retry mode):\n"
     for check in config.checks:
         if check.ok:
-            print ("Check %s is %s" % (check,
-                   "OK" if check.retry_count == 0 else "retrying"))
+            report += "Check %s is %s\n" % (check,
+                      "OK" if check.retry_count == 0 else "retrying")
+
+    return (report, has_error)
+
+def usr1_handler(signum, frame):
+    (report, err) = create_report()
+    print ("Signal SIGUSR1 caught, printing state of checks.")
+    print (report)
+
 
 
 if __name__ == '__main__':

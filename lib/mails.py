@@ -71,6 +71,23 @@ _mailer = ThreadedSMTP()
 def quit():
     _mailer.quit()
 
+def _send_email(subject, body, extra_headers={}):
+    from . import config
+
+    # encode / decode is a fix that didn't make it into Debian Wheezy
+    # http://bugs.python.org/issue16948
+    msg = MIMEText(body.encode('utf-8').decode('latin1'), 'plain', 'utf-8')
+
+    msg['Subject'] = subject
+    msg['From']    = config.emails.addr_from
+    msg['To']      = ", ".join(config.emails.to)
+    msg['Date']    = strftime('%a, %d %b %Y %H:%M:%S %z')
+
+    for (key, val) in extra_headers.items():
+        msg[key] = val
+
+    _mailer.sendmail(config.emails.addr_from, config.emails.to,
+                     msg.as_string())
 
 def send_email_for_check(check):
     from . import config
@@ -86,21 +103,13 @@ def send_email_for_check(check):
         msg_text += ("Check %s failed:\n%s" %
                     (str(check), check.errmsg.strip()))
 
-    # encode / decode is a fix that didn't make it into Debian Wheezy
-    # http://bugs.python.org/issue16948
-    msg = MIMEText(msg_text.encode('utf-8').decode('latin1'), 'plain', 'utf-8')
-
-    msg['Message-ID'] = make_msgid(type(check).__name__)
+    extra_headers={}
+    extra_headers['Message-ID'] = make_msgid(type(check).__name__)
     # if check is OK it's a follow up, so set In-Reply-To
     if check.ok and hasattr(check, 'mails_msgid'):
-        msg['In-Reply-To'] = check.mails_msgid
-        msg['References'] = check.mails_msgid
-    check.mails_msgid = msg['Message-ID']
+        extra_headers['In-Reply-To'] = check.mails_msgid
+        extra_headers['References'] = check.mails_msgid
+    check.mails_msgid = extra_headers['Message-ID']
 
-    msg['Subject'] = subject
-    msg['From']    = config.emails.addr_from
-    msg['To']      = ", ".join(config.emails.to)
-    msg['Date']    = strftime('%a, %d %b %Y %H:%M:%S %z')
+    _send_email(subject, msg_text, extra_headers)
 
-    _mailer.sendmail(config.emails.addr_from, config.emails.to,
-                     msg.as_string())

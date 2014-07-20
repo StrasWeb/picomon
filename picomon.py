@@ -25,10 +25,12 @@ def create_report():
 
     return (report, has_error)
 
+
 def usr1_handler(signum, frame):
     (report, err) = create_report()
     print ("Signal SIGUSR1 caught, printing state of checks.")
     print (report)
+
 
 def alarm_handler(signum, frame):
     (report, err) = create_report()

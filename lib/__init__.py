@@ -33,5 +33,5 @@ config.install_attr('emails.report.every', 0)
 #            parameter)
 config.install_attr('emails.subject_tpl',
                     '[DOMAIN] {state}: {check} on {dest}')
-# 0 disables reports
+# reports email subject
 config.install_attr('emails.report.subject', '[DOMAIN] Picomon error report')

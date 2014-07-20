@@ -89,6 +89,7 @@ def _send_email(subject, body, extra_headers={}):
     _mailer.sendmail(config.emails.addr_from, config.emails.to,
                      msg.as_string())
 
+
 def send_email_for_check(check):
     from . import config
     # ensure we do not traceback with unknown substitutions
@@ -103,7 +104,7 @@ def send_email_for_check(check):
         msg_text += ("Check %s failed:\n%s" %
                     (str(check), check.errmsg.strip()))
 
-    extra_headers={}
+    extra_headers = {}
     extra_headers['Message-ID'] = make_msgid(type(check).__name__)
     # if check is OK it's a follow up, so set In-Reply-To
     if check.ok and hasattr(check, 'mails_msgid'):

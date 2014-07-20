@@ -35,3 +35,5 @@ config.install_attr('emails.subject_tpl',
                     '[DOMAIN] {state}: {check} on {dest}')
 # reports email subject
 config.install_attr('emails.report.subject', '[DOMAIN] Picomon error report')
+# watchdog error email subject
+config.install_attr('emails.watchdog_subject', '[DOMAIN] Picomon stopped')

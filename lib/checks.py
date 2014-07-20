@@ -2,6 +2,7 @@ from .subprocess_compat import TimeoutExpired, Popen, PIPE
 import re
 from . import mails
 from collections import Iterable
+from datetime import datetime
 
 
 class Host(object):
@@ -61,6 +62,7 @@ class Check(object):
                 self.retry_count = min(self.retry_count + 1, self.retry)
                 if self.retry_count == self.retry or immediate:
                     if self.ok:
+                        self.failure_date = datetime.now()
                         self.ok = False
                         mails.send_email_for_check(self)
             else:

@@ -5,19 +5,23 @@ from time import sleep
 import config as user_config
 from lib import config
 from lib import mails
+from datetime import datetime, timedelta
 
 
-def create_report():
+def create_report(only_old=False):
     has_error = False
     report = ''
     report += "\n    Checks in error:\n"
+    now = datetime.now()
+    delta = timedelta(seconds=config.emails.report.every)
     for check in config.checks:
-        if not check.ok:
+        if not check.ok and (not only_old or now - check.failure_date > delta):
             has_error = True
             report += '-+' * 40 + '\n'
-            report += "%s: %s\n\t%s\n" % (check.target_name, check,
-                      check.errmsg.strip())
-    report += '-+' * 40 + "\n\n    Other checks (usually OK but may be in retry mode):\n"
+            report += "%s: %s\nSince %s\n\t%s\n" % (check.target_name, check,
+                      check.failure_date, check.errmsg.strip())
+    report += '-+' * 40 + "\n\n"
+    report += "    Other checks (usually OK but may be in retry mode):\n"
     for check in config.checks:
         if check.ok:
             report += "Check %s is %s\n" % (check,
@@ -33,8 +37,10 @@ def usr1_handler(signum, frame):
 
 
 def alarm_handler(signum, frame):
-    (report, err) = create_report()
+    (report, err) = create_report(only_old=True)
     if err:
+        report = "Following entries have failed for more than %ss:\n" % \
+                 config.emails.report.every + report
         mails.send_email_report(report)
 
 

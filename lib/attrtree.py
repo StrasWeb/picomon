@@ -8,7 +8,7 @@ class AttrTree(object):
     def install_attr(self, key, default):
         if key in self._attrs:
             raise KeyError('Key "%s" already exists' % key)
-        stems = key.split('.', 2)
+        stems = key.split('.', 1)
         if len(stems) < 2:
             self._attrs[key] = default
         elif stems[0] in self._attrs:

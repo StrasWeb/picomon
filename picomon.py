@@ -43,7 +43,8 @@ if __name__ == '__main__':
 
     # register report signal interval
     if config.emails.report.every > 0:
-        signal.setitimer(signal.ITIMER_REAL, 60, config.emails.report.every)
+        signal.setitimer(signal.ITIMER_REAL, config.emails.report.every,
+                                             config.emails.report.every)
 
     # Parse command line
     parser = argparse.ArgumentParser()

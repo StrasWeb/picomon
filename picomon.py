@@ -30,11 +30,20 @@ def usr1_handler(signum, frame):
     print ("Signal SIGUSR1 caught, printing state of checks.")
     print (report)
 
+def alarm_handler(signum, frame):
+    (report, err) = create_report()
+    if err:
+        mails.send_email_report(report)
 
 
 if __name__ == '__main__':
     # register signal handling
     signal.signal(signal.SIGUSR1, usr1_handler)
+    signal.signal(signal.SIGALRM, alarm_handler)
+
+    # register report signal interval
+    if config.emails.report.every > 0:
+        signal.setitimer(signal.ITIMER_REAL, 60, config.emails.report.every)
 
     # Parse command line
     parser = argparse.ArgumentParser()

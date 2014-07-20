@@ -113,3 +113,6 @@ def send_email_for_check(check):
 
     _send_email(subject, msg_text, extra_headers)
 
+def send_email_report(text):
+    from . import config
+    _send_email(config.emails.report.subject, text)

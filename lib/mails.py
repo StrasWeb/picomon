@@ -52,8 +52,6 @@ class ThreadedSMTP(object):
             except queue.Empty:
                 server = self.__server_quit(server)
                 task_eaten = False  # we didn't eat a task, just timeout
-            except KeyboardInterrupt as e:
-                break
             else:
                 if len(args) or len(kwargs):  # ignore empty items
                     try:

@@ -1,4 +1,5 @@
 import smtplib
+import logging
 from email.mime.text import MIMEText
 from email.utils import make_msgid
 from collections import defaultdict
@@ -55,7 +56,7 @@ class ThreadedSMTP(object):
                             server = smtplib.SMTP(host)
                         server.sendmail(*args, **kwargs)
                     except Exception as e:
-                        print("Couldn't send email: %s" % str(e), file=stderr)
+                        logging.warning("Couldn't send email: %s" % str(e))
             finally:
                 if server:  # server is None on exception queue.Empty
                     self._queue.task_done()

@@ -50,6 +50,8 @@ In addition some checks have specific options, see lib/checks.py for examples.
 In case you want to check lesser important services and configure very long check intervals, you may
 want to have another interval, global to all checks, for error retries. This can be set with the `error_every` option.
 
+For a full list of all available options, see the lib/__init__.py file.
+
 Current state output
 --------------------
 

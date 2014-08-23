@@ -15,6 +15,9 @@ config.install_attr('base_tick', 60)
 # How often we retry checks that are in error (-1 disables feature)
 config.install_attr('error_every', -1)
 
+# Verbosity level (one of CRITICAL, ERROR, WARNING, INFO, DEBUG)
+config.install_attr('verb_level', 'INFO')
+
 # Email addresses to send to when an alert is triggered
 config.install_attr('emails.to', [])
 # The From: address

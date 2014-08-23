@@ -1,6 +1,7 @@
 import concurrent.futures
 import signal
 import argparse
+import logging
 from time import sleep
 import config as user_config
 from lib import config
@@ -60,7 +61,16 @@ if __name__ == '__main__':
                         help="single run with immediate output of " +
                              "check results (test/debug)",
                         action="store_true")
+    parser.add_argument("-D", "--debug",
+                        help="Set verbosity to DEBUG",
+                        action="store_true")
     args = parser.parse_args()
+
+    # Configure logging
+    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s',
+                        level=config.verb_level)
+    if args.debug:
+        logging.getLogger().setLevel('DEBUG')
 
     # do the actual polling
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:

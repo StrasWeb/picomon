@@ -1,5 +1,6 @@
 from .subprocess_compat import TimeoutExpired, Popen, PIPE
 import re
+import logging
 from . import mails
 from collections import Iterable
 from datetime import datetime
@@ -61,6 +62,7 @@ class Check(object):
                                           config.error_every < 0
                                        else config.error_every)
         if self.every_count == 0 or immediate:
+            logging.debug('Running ' + str(self))
             self.setup()
             if not self.check():
                 self.retry_count = min(self.retry_count + 1, self.retry)

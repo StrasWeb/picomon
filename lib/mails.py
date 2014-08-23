@@ -8,6 +8,7 @@ from time import strftime
 import email.charset
 from threading import Thread
 import queue
+import atexit
 
 # Switch to quoted-printable so that we don't get something completely
 # unreadable for non-ASCII chars if we have to look at raw email
@@ -21,8 +22,10 @@ class ThreadedSMTP(object):
         self._queue = queue.Queue()
         self._loop = True
         self._thread = Thread(target=self.__loop)
-        self._thread.deamon = True
+        self._thread.daemon = True
         self._thread.start()
+        # properly clean up on quit
+        atexit.register(self.quit)
 
     def quit(self):
         if self._loop:

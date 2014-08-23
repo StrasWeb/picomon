@@ -43,10 +43,12 @@ class ThreadedSMTP(object):
 
         server = None
         while self._loop or not self._queue.empty():
+            task_eaten = True
             try:
                 args, kwargs = self._queue.get(timeout=timeout)
             except queue.Empty:
                 server = self.__server_quit(server)
+                task_eaten = False  # we didn't eat a task, just timeout
             except KeyboardInterrupt as e:
                 break
             else:
@@ -58,7 +60,7 @@ class ThreadedSMTP(object):
                     except Exception as e:
                         logging.warning("Couldn't send email: %s" % str(e))
             finally:
-                if server:  # server is None on exception queue.Empty
+                if task_eaten:
                     self._queue.task_done()
         self.__server_quit(server)
 

@@ -2,8 +2,10 @@ import concurrent.futures
 import signal
 import argparse
 import logging
+import importlib
+import sys
+import os
 from time import sleep
-import config as user_config
 from lib import config
 from lib import mails
 from datetime import datetime, timedelta
@@ -46,14 +48,6 @@ def alarm_handler(signum, frame):
 
 
 if __name__ == '__main__':
-    # register signal handling
-    signal.signal(signal.SIGUSR1, usr1_handler)
-    signal.signal(signal.SIGALRM, alarm_handler)
-
-    # register report signal interval
-    if config.emails.report.every > 0:
-        signal.setitimer(signal.ITIMER_REAL, config.emails.report.every,
-                                             config.emails.report.every)
 
     # Parse command line
     parser = argparse.ArgumentParser()
@@ -64,13 +58,36 @@ if __name__ == '__main__':
     parser.add_argument("-D", "--debug",
                         help="Set verbosity to DEBUG",
                         action="store_true")
+    parser.add_argument("-c", "--config",
+                        help="Set config file (defauts to config.py)",
+                        default='config.py')
     args = parser.parse_args()
+
+    # import config file module
+    try:
+        sys.path.append(os.path.dirname(args.config))
+        filename  = os.path.basename(args.config)
+        base, ext = os.path.splitext(filename)
+        importlib.import_module(base)
+    except ImportError as e:
+        logging.critical("Cannot load config from '%s': %s" % (
+                         args.config, str(e)))
+        sys.exit(1)
 
     # Configure logging
     logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s',
                         level=config.verb_level)
     if args.debug:
         logging.getLogger().setLevel('DEBUG')
+
+    # register signal handling
+    signal.signal(signal.SIGUSR1, usr1_handler)
+    signal.signal(signal.SIGALRM, alarm_handler)
+
+    # register report signal interval
+    if config.emails.report.every > 0:
+        signal.setitimer(signal.ITIMER_REAL, config.emails.report.every,
+                                             config.emails.report.every)
 
     # do the actual polling
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:

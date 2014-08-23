@@ -12,6 +12,9 @@ config.install_attr('checks', Checks())
 # Each check may then individually be configured to run every N * tick
 config.install_attr('base_tick', 60)
 
+# How often we retry checks that are in error (-1 disables feature)
+config.install_attr('error_every', -1)
+
 # Email addresses to send to when an alert is triggered
 config.install_attr('emails.to', [])
 # The From: address

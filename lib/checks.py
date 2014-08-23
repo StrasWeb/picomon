@@ -55,7 +55,11 @@ class Check(object):
         pass
 
     def run(self, immediate=False):
-        self.every_count = (self.every_count + 1) % self.every
+        from . import config
+        self.every_count = (self.every_count + 1) % (
+                            self.every if self.ok or
+                                          config.error_every < 0
+                                       else config.error_every)
         if self.every_count == 0 or immediate:
             self.setup()
             if not self.check():

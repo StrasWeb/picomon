@@ -41,12 +41,11 @@ class ThreadedSMTP(object):
 
     def __loop(self):
         from . import config
-        host = config.emails.smtp_host
-        timeout = config.emails.smtp_keepalive_timeout
 
         server = None
         while self._loop or not self._queue.empty():
             try:
+                timeout = config.emails.smtp_keepalive_timeout
                 args, kwargs = self._queue.get(timeout=timeout)
             except queue.Empty:
                 server = self.__server_quit(server)
@@ -54,7 +53,7 @@ class ThreadedSMTP(object):
                 if len(args) or len(kwargs):  # ignore empty items
                     try:
                         if server is None:
-                            server = smtplib.SMTP(host)
+                            server = smtplib.SMTP(config.emails.smtp_host)
                         server.sendmail(*args, **kwargs)
                     except Exception as e:
                         logging.warning("Couldn't send email: %s" % str(e))

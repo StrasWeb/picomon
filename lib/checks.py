@@ -28,11 +28,13 @@ class Checks(list):
 
 class Check(object):
     def __init__(self, **options):
+        from . import config
         self._options    = options
         self.retry       = options.get('retry', 0)
         self.retry_count = 0
-        self.every       = options.get('every', 1)
-        self.every_count = 0
+        self.every       = options.get('every', config.default_every)
+        self.error_every = options.get('error_every', config.default_error_every)
+        self.run_count   = 0
         self.errmsg      = ''
         self.ok          = True
         self.target_name = options.get('target_name', 'Unknown')
@@ -40,7 +42,7 @@ class Check(object):
 
     def __repr__(self):
         return '{:<15s} N={}/{}, R={}/{}, {}'.format(self.__class__.__name__,
-                                                     self.every_count,
+                                                     self.run_count,
                                                      self.every,
                                                      self.retry_count,
                                                      self.retry,
@@ -56,12 +58,11 @@ class Check(object):
         pass
 
     def run(self, immediate=False):
-        from . import config
-        self.every_count = (self.every_count + 1) % (
-                            self.every if self.ok or
-                                          config.error_every < 0
-                                       else config.error_every)
-        if self.every_count == 0 or immediate:
+        self.run_count = (self.run_count + 1) % (
+                          self.every if self.ok or
+                                        self.error_every < 0
+                                     else self.error_every)
+        if self.run_count == 0 or immediate:
             logging.debug('Running ' + str(self))
             self.setup()
             if not self.check():

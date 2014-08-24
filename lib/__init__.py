@@ -12,8 +12,12 @@ config.install_attr('checks', Checks())
 # Each check may then individually be configured to run every N * tick
 config.install_attr('base_tick', 60)
 
-# How often we retry checks that are in error (-1 disables feature)
-config.install_attr('error_every', -1)
+# Default "every" check parameter, can be overridden on a per-check basis
+config.install_attr('default_every', 1)
+
+# Default "error_every" (how often we retry checks that are in error) parameter
+# -1 disables feature (same as regular "every"), can be also be overridden
+config.install_attr('default_error_every', -1)
 
 # Verbosity level (one of CRITICAL, ERROR, WARNING, INFO, DEBUG)
 config.install_attr('verb_level', 'INFO')

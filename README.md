@@ -36,7 +36,7 @@ Everything can be configured from config.py: notified email(s), base tick, hosts
 The `base_tick` option defines the base granularity (in seconds) for polling.
 `Host`s are shorthands to avoid repeating addresses within checks.
 Checks are then defined as a list of `Check`-derived class instances that
-implement every single check (see lib/checks.py).
+implement every single check (see picomon/checks.py).
 
 Each check may be initialised with some options:
 
@@ -45,12 +45,12 @@ Each check may be initialised with some options:
   * `timeout`: subcommand timeout, to avoid stalling checks (defaults to 2 seconds);
   * `target_name`: human-readable name of the target of the check (automatically set by the `name` option if using `Host` instances).
 
-In addition some checks have specific options, see lib/checks.py for examples.
+In addition some checks have specific options, see picomon/checks.py for examples.
 
 In case you want to check lesser important services and configure very long check intervals, you may
 want to have another interval, global to all checks, for error retries. This can be set with the `error_every` option.
 
-For a full list of all available options, see the lib/__init__.py file.
+For a full list of all available options, see the picomon/__init__.py file.
 
 Current state output
 --------------------

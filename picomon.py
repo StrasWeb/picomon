@@ -6,8 +6,8 @@ import importlib
 import sys
 import os
 from time import sleep
-from lib import config
-from lib import mails
+from picomon import config
+from picomon import mails
 from datetime import datetime, timedelta
 
 

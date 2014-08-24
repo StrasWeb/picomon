@@ -1,10 +1,10 @@
-from lib.checks import *
-from lib import config
+from picomon.checks import *
+from picomon import config
 
 
 # This is a sample config file, so that you have the most useful parameters
 # to hand in there, along with their default value
-# For a full, explained list see lib/__init__.py
+# For a full, explained list see picomon/__init__.py
 
 
 # Polling
@@ -66,7 +66,7 @@ v6only    = Host(ipv6='2001:0DB8::beef')
 day     = 86400 / config.base_tick
 halfday = 43200 / config.base_tick
 
-# For a list of checks, see the different classes in lib/checks.py
+# For a list of checks, see the different classes in picomon/checks.py
 
 config.checks.add([CheckPing4, CheckPing6], [localhost, h1], retry=2, every=5)
 #config.checks.add(CheckDNSZone, ["example.net", "example.org"], ip_version=4)

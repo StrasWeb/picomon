@@ -1,6 +1,6 @@
 import subprocess
 import config
-from lib import mails
+from picomon import mails
 
 
 retcode = subprocess.call(["python3", "picomon.py"])

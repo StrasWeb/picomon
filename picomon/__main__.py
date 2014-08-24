@@ -1,3 +1,13 @@
+
+"""
+Picomon executable module.
+
+This module can be executed from a command line with ``$python -m picomon`` or
+from a python programme with ``picomon.__main__.run()``.
+
+"""
+
+
 import concurrent.futures
 import signal
 import argparse
@@ -6,12 +16,12 @@ import importlib
 import sys
 import os
 from time import sleep
-from picomon import config
-from picomon import mails
 from datetime import datetime, timedelta
+from . import config
+from . import mails
 
 
-def create_report(only_old=False):
+def __create_report(only_old=False):
     has_error = False
     report = ''
     report += "\n    Checks in error:\n"
@@ -33,22 +43,21 @@ def create_report(only_old=False):
     return (report, has_error)
 
 
-def usr1_handler(signum, frame):
-    (report, err) = create_report()
+def __usr1_handler(signum, frame):
+    (report, err) = __create_report()
     print ("Signal SIGUSR1 caught, printing state of checks.")
     print (report)
 
 
-def alarm_handler(signum, frame):
-    (report, err) = create_report(only_old=True)
+def __alarm_handler(signum, frame):
+    (report, err) = __create_report(only_old=True)
     if err:
         report = "Following entries have failed for more than %ss:\n" % \
                  config.emails.report.every + report
         mails.send_email_report(report)
 
 
-if __name__ == '__main__':
-
+def run():
     # Parse command line
     parser = argparse.ArgumentParser()
     parser.add_argument("-1", "--one",
@@ -81,8 +90,8 @@ if __name__ == '__main__':
         logging.getLogger().setLevel('DEBUG')
 
     # register signal handling
-    signal.signal(signal.SIGUSR1, usr1_handler)
-    signal.signal(signal.SIGALRM, alarm_handler)
+    signal.signal(signal.SIGUSR1, __usr1_handler)
+    signal.signal(signal.SIGALRM, __alarm_handler)
 
     # register report signal interval
     if config.emails.report.every > 0:
@@ -113,3 +122,7 @@ if __name__ == '__main__':
                     executor.submit(check.run)
                 sleep(config.base_tick)
     mails.quit()
+
+
+if __name__ == '__main__':
+    run()

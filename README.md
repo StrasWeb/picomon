@@ -77,6 +77,19 @@ They are sent on a regular basis (configured with option `emails.report.every`)
 only if there are some checks in an error state.
 
 
+Test it!
+--------
+
+You have several solutions :
+
+  * Install with `distutils`, for example: `setup.py install --user` then run it from your local bin/ directory;
+  * Run directly with something like `python3 -m picomon`
+  * Set python module path by hand: `PYTHONPATH=. bin/picomon`
+
+The default config file is `config.py`, so either copy/link the sample one, write
+your own or use the `-s` command line argument.
+
+
 License
 -------
 

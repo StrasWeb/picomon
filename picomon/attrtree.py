@@ -22,7 +22,7 @@ class AttrTree(object):
         return self._attrs[key]
 
     def __setitem__(self, key, value):
-        if not key in self._attrs:
+        if key not in self._attrs:
             raise KeyError('Key "%s" does not exist' % key)
         elif isinstance(self._attrs[key], AttrTree):
             raise KeyError('Key "%s" is not settable' % key)

@@ -57,8 +57,7 @@ def __alarm_handler(signum, frame):
         mails.send_email_report(report)
 
 
-def run():
-    # Parse command line
+def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("-1", "--one",
                         help="single run with immediate output of " +
@@ -70,18 +69,28 @@ def run():
     parser.add_argument("-c", "--config",
                         help="Set config file (defauts to config.py)",
                         default='config.py')
-    args = parser.parse_args()
+    return parser.parse_args()
 
+
+def import_config(configfile):
     # import config file module
     try:
-        sys.path.append(os.path.dirname(args.config))
-        filename  = os.path.basename(args.config)
+        sys.path.append(os.path.dirname(configfile))
+        filename  = os.path.basename(configfile)
         base, ext = os.path.splitext(filename)
         importlib.import_module(base)
     except ImportError as e:
         logging.critical("Cannot load config from '%s': %s" % (
                          args.config, str(e)))
         sys.exit(1)
+
+
+def run():
+    # Parse command line
+    args = parse_args()
+
+    # import config file module
+    import_config(args.config)
 
     # Configure logging
     logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s',

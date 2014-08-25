@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import picomon.__main__
+from picomon.__main__ import run
 
 
-picomon.__main__.run()
+run()

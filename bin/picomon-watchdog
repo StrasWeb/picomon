@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
-import subprocess
-import sys
+from subprocess import call
+from sys import argv
 import os
-import importlib
-from picomon import config
-from picomon import mails
+from picomon import config, mails
 from picomon.__main__ import parse_args, import_config
 
 
 # launch picomon
 filename = 'picomon'
-if os.path.sep in sys.argv[0]:
-    filename = os.path.join(os.path.dirname(sys.argv[0]), filename)
+if os.path.sep in argv[0]:
+    filename = os.path.join(os.path.dirname(argv[0]), filename)
 
-retcode = subprocess.call([filename] + sys.argv[1:])
+retcode = call([filename] + argv[1:])
 
 # load config
 args = parse_args()

@@ -12,7 +12,6 @@ import concurrent.futures
 import signal
 import argparse
 import logging
-import importlib
 import sys
 import os
 from time import sleep
@@ -73,12 +72,17 @@ def parse_args():
 
 
 def import_config(configfile):
-    # import config file module
+    """ import config file module """
+    # narrow importlib usage and avoid bytecode writing to be able to use
+    # configfiles in RO directories
+    from importlib import import_module
+    sys.dont_write_bytecode = True
+
+    sys.path.append(os.path.dirname(configfile))
+    filename  = os.path.basename(configfile)
+    base, ext = os.path.splitext(filename)
     try:
-        sys.path.append(os.path.dirname(configfile))
-        filename  = os.path.basename(configfile)
-        base, ext = os.path.splitext(filename)
-        importlib.import_module(base)
+        import_module(base)
     except ImportError as e:
         logging.critical("Cannot load config from '%s': %s" % (
                          args.config, str(e)))

@@ -21,11 +21,15 @@ The DNS zone check calls [Bortzmeyer's](https://github.com/bortzmeyer/check_dns_
 Usage
 -----
 
-    usage: picomon.py [-h] [-1]
+    usage: picomon [-h] [-1] [-D] [-c CONFIG]
 
     optional arguments:
-      -h, --help  show this help message and exit
-      -1, --one   single run with immediate output of check results (test/debug)
+      -h, --help            show this help message and exit
+      -1, --one             single run with immediate output of check results
+                            (test/debug)
+      -D, --debug           Set verbosity to DEBUG
+      -c CONFIG, --config CONFIG
+                            Set config file (defauts to config.py)
 
 
 Configuration
@@ -87,7 +91,21 @@ You have several solutions :
   * Set python module path by hand: `PYTHONPATH=. bin/picomon`
 
 The default config file is `config.py`, so either copy/link the sample one, write
-your own or use the `-s` command line argument.
+your own or use the `-c` command line argument.
+
+
+Run it!
+-------
+
+A small watchdog is distributed which will send an email in case the main daemon
+process exits (OOM, bug, etc.) to the same addresses than those used for check
+status notifications. You may tune the subject with the config option `emails.watchdog_subject`.
+
+For now, no sysv initscript / systemd unit / whatever for such a small daemon exists.
+One simple way to run it is to use something like the following in `/etc/rc.local`
+(assuming a standard system-wide install with `setup.py install`):
+
+    for conf in /usr/local/etc/picomon/*.py; do sudo -u nobody picomon-watchdog -c $conf > /tmp/picomon-$(basename $conf .py).log 2>&1 & done
 
 
 License

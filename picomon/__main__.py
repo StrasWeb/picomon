@@ -12,6 +12,7 @@ import concurrent.futures
 import signal
 import argparse
 import logging
+import traceback
 import sys
 import os
 from time import sleep
@@ -113,10 +114,10 @@ def run():
 
     # do the actual polling
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        def runner(check):
-            return check.run(immediate=True), check
-
         if args.one:
+            def runner(check):
+                return check.run(immediate=True), check
+
             futures = []
             for check in config.checks:
                 futures.append(executor.submit(runner, check))
@@ -129,10 +130,19 @@ def run():
                     print("Check %s failed:\n%s" %
                           (str(check), check.errmsg.strip()))
         else:
+            # Since we never reclaim finished tasks, exceptions raised during
+            # run are never seen. Using a runner we can at least display them.
+            def runner(check):
+                try:
+                    return check.run()
+                except Exception as e:
+                    traceback.print_exc()
+                    raise e
+
             # This will drift slowly as it takes (base_tick + espilon) seconds
             while True:
                 for check in config.checks:
-                    executor.submit(check.run)
+                    executor.submit(runner, check)
                 sleep(config.base_tick)
     mails.quit()
 

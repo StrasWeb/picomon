@@ -66,14 +66,18 @@ class Check(object):
             logging.debug('Running ' + str(self))
             self.setup()
             if not self.check():
+                logging.debug('Fail: ' + str(self))
                 self.retry_count = min(self.retry_count + 1, self.retry)
                 if self.retry_count == self.retry or immediate:
                     if self.ok:
+                        logging.debug('Switched to failure: ' + str(self))
                         self.failure_date = datetime.now()
                         self.ok = False
                         mails.send_email_for_check(self)
             else:
+                logging.debug('OK: ' + str(self))
                 if not self.ok:
+                    logging.debug('Switched to ok: ' + str(self))
                     self.ok = True
                     mails.send_email_for_check(self)
                 self.retry_count = 0

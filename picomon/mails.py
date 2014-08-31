@@ -5,6 +5,7 @@ from email.utils import make_msgid
 from collections import defaultdict
 from sys import stderr
 from time import strftime
+from datetime import datetime, timedelta
 import email.charset
 from threading import Thread
 import queue
@@ -99,10 +100,16 @@ def send_email_for_check(check):
                     check=check.__class__.__name__,
                     dest=check.target_name))
 
-    msg_text = ''
-    if not check.ok:
-        msg_text += ("Check %s failed:\n%s" %
-                    (str(check), check.errmsg.strip()))
+    msg_text = "Check %s:\n" % str(check)
+    if check.ok:
+        delta = datetime.now() - check.failure_date
+        # remove microsec
+        delta = delta - timedelta(microseconds=delta.microseconds)
+        n = delta // timedelta(seconds=check.error_every * config.base_tick)
+        msg_text += ("recovered after %s (%d %s)." %
+                     (delta, n, "retry" if n == 1 else "retries"))
+    else:
+        msg_text += ("failure:\n%s" % check.errmsg.strip())
 
     extra_headers = {}
     extra_headers['Message-ID'] = make_msgid(type(check).__name__)

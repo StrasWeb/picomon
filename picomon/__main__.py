@@ -88,7 +88,7 @@ def import_config(configfile):
         import_module(base)
     except ImportError as e:
         logging.critical("Cannot load config from '%s': %s" % (
-                         args.config, str(e)))
+                         configfile, str(e)))
         sys.exit(1)
 
 

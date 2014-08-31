@@ -34,6 +34,8 @@ class Check(object):
         self.retry_count = 0
         self.every       = options.get('every', config.default_every)
         self.error_every = options.get('error_every', config.default_error_every)
+        if self.error_every < 0:
+            self.error_every = self.every
         self.run_count   = 0
         self.errmsg      = ''
         self.ok          = True
@@ -59,9 +61,7 @@ class Check(object):
 
     def run(self, immediate=False):
         self.run_count = (self.run_count + 1) % (
-                          self.every if self.ok or
-                                        self.error_every < 0
-                                     else self.error_every)
+                          self.every if self.ok else self.error_every)
         if self.run_count == 0 or immediate:
             logging.debug('Running ' + str(self))
             self.setup()

@@ -45,8 +45,10 @@ def __create_report(only_old=False):
 
 def __usr1_handler(signum, frame):
     (report, err) = __create_report()
-    print ("Signal SIGUSR1 caught, printing state of checks.")
+    print ("Signal SIGUSR1 caught, printing state of checks. (%s)" %
+           datetime.now())
     print (report)
+    sys.stdout.flush()
 
 
 def __alarm_handler(signum, frame):

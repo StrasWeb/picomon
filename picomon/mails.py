@@ -105,7 +105,7 @@ def send_email_for_check(check):
         delta = datetime.now() - check.failure_date
         # remove microsec
         delta = delta - timedelta(microseconds=delta.microseconds)
-        n = delta // timedelta(seconds=check.error_every * config.base_tick)
+        n = check.retry_count + 1 - check.retry
         msg_text += ("recovered after %s (%d %s)." %
                      (delta, n, "retry" if n == 1 else "retries"))
     else:

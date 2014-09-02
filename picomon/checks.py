@@ -67,8 +67,8 @@ class Check(object):
             self.setup()
             if not self.check():
                 logging.debug('Fail: ' + str(self))
-                self.retry_count = min(self.retry_count + 1, self.retry)
-                if self.retry_count == self.retry or immediate:
+                self.retry_count += 1
+                if self.retry_count >= self.retry or immediate:
                     if self.ok:
                         logging.debug('Switched to failure: ' + str(self))
                         self.failure_date = datetime.now()

@@ -30,7 +30,7 @@ class Check(object):
     def __init__(self, **options):
         from . import config
         self._options    = options
-        self.retry       = options.get('retry', 0)
+        self.retry       = options.get('retry', 1)
         self.retry_count = 0
         self.every       = options.get('every', config.default_every)
         self.error_every = options.get('error_every', config.default_error_every)

@@ -31,6 +31,8 @@ config.install_attr('emails.addr_from',
 config.install_attr('emails.smtp_host', 'localhost:25')
 # The inactive timeout after which to close the SMTP connection
 config.install_attr('emails.smtp_keepalive_timeout', 60)
+# Timeout after which to retry sending emails after a failure
+config.install_attr('emails.smtp_retry_timeout', 60)
 # Interval in seconds between global reports when some checks are in error
 # 0 disables reports
 config.install_attr('emails.report.every', 0)

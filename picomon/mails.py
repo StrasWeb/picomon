@@ -7,7 +7,7 @@ from sys import stderr
 from time import strftime
 from datetime import datetime, timedelta
 import email.charset
-from threading import Thread
+from threading import Thread, Event
 import queue
 import atexit
 
@@ -21,7 +21,7 @@ class ThreadedSMTP(object):
 
     def __init__(self):
         self._queue = queue.Queue()
-        self._loop = True
+        self._quit = Event()
         self._thread = Thread(target=self.__loop)
         self._thread.daemon = True
         self._thread.start()
@@ -29,8 +29,8 @@ class ThreadedSMTP(object):
         atexit.register(self.quit)
 
     def quit(self):
-        if self._loop:
-            self._loop = False
+        if not self._quit.is_set():
+            self._quit.set()
             self._queue.put(((), {}))  # put a dummy item to wake up the thread
             self._queue.join()
             self._thread.join()
@@ -44,7 +44,7 @@ class ThreadedSMTP(object):
         from . import config
 
         server = None
-        while self._loop or not self._queue.empty():
+        while not self._quit.is_set() or not self._queue.empty():
             try:
                 timeout = config.emails.smtp_keepalive_timeout
                 args, kwargs = self._queue.get(timeout=timeout)
@@ -57,7 +57,21 @@ class ThreadedSMTP(object):
                             server = smtplib.SMTP(config.emails.smtp_host)
                         server.sendmail(*args, **kwargs)
                     except Exception as e:
-                        logging.warning("Couldn't send email: %s" % str(e))
+                        # message couldn't be sent, but assume it's a temporary
+                        # server error and try again in a moment (unless when
+                        # we're quitting, not to block).  If it is a permanent
+                        # error it most likely means the configuration is wrong
+                        # anyway so the user has to fix it and restart.
+                        if self._quit.is_set():
+                            logging.warning("Couldn't send email: %s" % str(e))
+                        else:
+                            logging.warning(
+                                "Couldn't send email (will retry in %ds): %s" %
+                                (config.emails.smtp_retry_timeout, str(e)))
+                            # put the item back and wait
+                            self._queue.put_nowait((args, kwargs))
+                            self._quit.wait(
+                                timeout=config.emails.smtp_retry_timeout)
                 self._queue.task_done()
         self.__server_quit(server)
 

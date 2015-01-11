@@ -203,7 +203,7 @@ class CheckHTTP(Check):
 
 class CheckHTTPS(CheckHTTP):
     def check(self):
-        command = self.build_command() + ['--ssl']
+        command = self.build_command() + ['--ssl', '--sni']
         return self.exec_with_timeout(command, timeout=self.timeout + 1)
 
 
